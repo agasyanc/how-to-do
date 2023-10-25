@@ -1,46 +1,72 @@
-# How to draw bezier paths (UNFINISHED)
+# How to draw a curve on an HTML Canvas
+<!-- [In Russian](bezier-draw/README.md) -->
 
+In a world where all vector editors have already been created, it is almost impossible to find information about how these editors work. It's a little sad, but don't worry — now we'll figure out how to draw and edit the curve.
 
-## Model
+## Model first
 
-First of all creates `Point` class. Its help manipulate 2d vectors. Point have two attributes — `x` and `y` — both `number` type. 
+Let's figure out how to store information about the curve. The curve in vector editors combines segments of lines and Bezier curves. 
 
+The simplest data type is the `Point` vector. The vector stores information about the coordinates `x` and `y` and methods of transformation of such vectors — addition, subtraction, multiplication, calculation of length, angle, etc.
 
+[./src/point.ts](./src/point.ts)
 ```typescript
-export default class Point {
+class Point {
   x: number;
   y: number;
   constructor(x: number = 0, y: number = 0){
     this.x = x;
     this.y = y;
   }
+  copy():Point{}
   add(point:Point){
     ...
   }
   ...
 }
 ```
+The vector itself is not part of the model. But it will be useful to use it in other places.
 
-## Available Scripts
+The curve elements themselves can be described in different ways. For example, in the Illustrator, each node contains two guides, and in Glyphs, both the node and the guides are the same type.
 
-### npm start
+The first and second methods have their pros and cons. When the guides are node properties, it is easier to draw and edit such a curve. The second method makes it easier to draw on Canvas by easy division into segments, and in some cases it is easier to edit.
 
-Runs the app in the development mode.
-Open http://localhost:8080 to view it in the browser.
+Let's try to implement the Illustrator's method.
 
-The page will reload if you make edits.
-You will also see any lint errors in the console.
+The model consists of several nested sets. At the top level there will be Drawing, it will be an element, like a layer in an Illustrator. Its task is to contain a set of Path paths. Each path contains a set of Nodes. Each node contains information about its location and the location of its guides.
 
-### npm run build
+[./src/drawing.ts](./src/drawing.ts)
+[./src/path.ts](./src/path.ts)
+[./src/node.ts](./src/node.ts)
 
-Builds a static copy of your site to the `build/` folder.
-Your app is ready to be deployed!
+```ts
+class Drawing{
+	paths: Path[] = [];
+  constructor() {}
+  ...
+}
 
-**For the best production performance:** Add a build bundler plugin like [@snowpack/plugin-webpack](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-webpack) or [snowpack-plugin-rollup-bundle](https://github.com/ParamagicDev/snowpack-plugin-rollup-bundle) to your `snowpack.config.mjs` config file.
+class Path{
+	nodes: Node[] = [];
+  constructor(){}
+  ...
+}
 
-### Q: What about Eject?
+class Node{
+  position: Point;
+  out_handle: Point;
+  in_handle: Point;
+  constructor(position:Point){
+    this.position = position.copy();
+    this.out_handle = new Point();
+    this.in_handle = new Point();
+  }
+  get x():number { return this.position.x; }
+  get y():number { return this.position.y; }
+  ...
+}
 
-No eject needed! Snowpack guarantees zero lock-in, and CSA strives for the same.
+```
+Note that `Node` does not take two coordinates in the construction, but an object of the Point class at once. And the guides have relative coordinates.
 
-
-> ✨ Bootstrapped with Create Snowpack App (CSA).
+To be continued…
