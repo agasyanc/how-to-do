@@ -3,6 +3,17 @@ import Point from "./point.js";
 export default class Path {
   constructor() {
     this.nodes = [];
+    this.closed = false;
+    this.onChange = null;
+  }
+  add_node(p) {
+    let node = new Node(p);
+    this.nodes.push(node);
+    node.onChange = () => {
+      this.onChange && this.onChange();
+    };
+    this.onChange && this.onChange();
+    return node;
   }
   make_test_path() {
     for (let i = 0; i < 4; i++) {

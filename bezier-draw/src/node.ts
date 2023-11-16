@@ -4,6 +4,7 @@ export default class Node{
   position: Point;
   out_handle: Point;
   in_handle: Point;
+  onChange:Function|null = null;
   constructor(position:Point){
     this.position = position.copy();
     this.out_handle = new Point();

@@ -1,6 +1,7 @@
 import Point from "./point.js";
 export default class Node {
   constructor(position) {
+    this.onChange = null;
     this.position = position.copy();
     this.out_handle = new Point();
     this.in_handle = new Point();

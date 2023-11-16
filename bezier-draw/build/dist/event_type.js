@@ -1,4 +1,4 @@
 export class EventType {
 }
-export class MouseDown extends EventType {
+export class PointerDown extends EventType {
 }
